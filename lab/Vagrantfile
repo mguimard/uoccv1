@@ -1,0 +1,91 @@
+##############################################################
+# Vagrant file for the lab                                   #
+# 3 VMS: master, worker1, worker2                            #
+##############################################################
+Vagrant.configure("2") do |base|      
+
+  ##############################################################
+  # Base                                                       #
+  ##############################################################
+  base.vm.box = "debian/bookworm64"
+
+  base.vm.provider "virtualbox" do |vb|
+    vb.memory = "2048"
+    vb.cpus = "2"
+  end
+
+  # todo: use containerd from debian repos instead of docker ones.
+  base.vm.provision "shell", inline: <<-RUN_AS_ROOT    
+    apt update    
+	  apt install -y apt-transport-https vim zsh curl figlet git ca-certificates gnupg lsb-release build-essential gpg
+	  curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg    
+    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list
+    apt update
+    apt install -y containerd kubelet kubeadm kubectl
+    chsh -s /bin/zsh vagrant
+    echo 'net.bridge.bridge-nf-call-ip6tables = 1' >> /etc/sysctl.d/k8s.conf
+    echo 'net.bridge.bridge-nf-call-iptables = 1' >> /etc/sysctl.d/k8s.conf
+    modprobe overlay
+    modprobe br_netfilter
+    echo '1' > /proc/sys/net/ipv4/ip_forward
+    systemctl enable --now kubelet
+    cp /vagrant/etc/containerd/config.toml /etc/containerd/config.toml
+    systemctl restart containerd.service
+  RUN_AS_ROOT
+  
+  base.vm.provision "shell", privileged: false, inline: <<-RUN_AS_VAGRANT
+    git clone https://github.com/robbyrussell/oh-my-zsh.git --depth 1 --single-branch ~/.oh-my-zsh
+    cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc    
+    sed -i 's/_THEME=\"robbyrussell\"/_THEME=\"agnoster\"/g' .zshrc
+    sed -i 's/plugins=(git)/plugins=(git kubectl minikube)/g' .zshrc
+  RUN_AS_VAGRANT
+
+  ##############################################################
+  # Master                                                     #
+  ##############################################################  
+  base.vm.define "master" do |master|
+    master.vm.network "private_network", ip: "192.168.56.10"
+    master.vm.hostname = "master"
+
+    master.vm.provision "shell", inline: <<-MASTER
+	    figlet Master > /etc/motd
+      sed -i 's|Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml"|Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml --node-ip=192.168.56.10"|g' /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf
+      systemctl daemon-reload
+      systemctl restart kubelet
+      wget https://get.helm.sh/helm-v3.19.0-linux-amd64.tar.gz
+      tar xf helm-v3.19.0-linux-amd64.tar.gz
+      install linux-amd64/helm /usr/bin/helm
+    MASTER
+  end
+
+  ##############################################################
+  # Worker1                                                    #
+  ##############################################################
+  base.vm.define "worker1" do |worker1|
+    worker1.vm.network "private_network", ip: "192.168.56.11"
+    worker1.vm.hostname = "worker1"
+    
+    worker1.vm.provision "shell", inline: <<-WORKER1
+	    figlet Worker1 > /etc/motd
+      sed -i 's|Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml"|Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml --node-ip=192.168.56.11"|g' /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf
+      systemctl daemon-reload
+      systemctl restart kubelet
+    WORKER1
+  end
+
+  ##############################################################
+  # Worker2                                                    #
+  ##############################################################
+  base.vm.define "worker2" do |worker2|
+    worker2.vm.network "private_network", ip: "192.168.56.12"
+    worker2.vm.hostname = "worker2"
+    
+    worker2.vm.provision "shell", inline: <<-WORKER2
+	    figlet Worker2 > /etc/motd
+      sed -i 's|Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml"|Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml --node-ip=192.168.56.12"|g' /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf
+      systemctl daemon-reload
+      systemctl restart kubelet
+    WORKER2
+  end
+end
+
