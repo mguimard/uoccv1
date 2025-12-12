@@ -93,7 +93,7 @@ Vérifiez la distribution des pods du DaemonSet :
 kubectl get pods -o wide -l app=daemon-nginx
 ```
 
-Vous devriez avoir un pod sur chaque nœud (`master`, `worker1`, `worker2`).
+Vous devriez avoir un pod sur chaque nœud (`worker1`, `worker2`).
 
 ---
 
