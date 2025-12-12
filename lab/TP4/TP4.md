@@ -30,7 +30,7 @@ Créez un fichier `deployment.yaml` :
 
 ```yaml
 apiVersion: apps/v1
-kind: Deploment
+kind: Deployment
 metadata:
   name: nginx-deployment
 spec:
