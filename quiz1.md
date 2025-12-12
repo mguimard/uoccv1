@@ -5,9 +5,9 @@
 **Qu’est-ce qu’un Pod dans Kubernetes ?**
 
 * [ ] Une machine virtuelle
-* [ ] L’unité de déploiement la plus petite dans Kubernetes
+* [x] L’unité de déploiement la plus petite dans Kubernetes
 * [ ] Un cluster de conteneurs
-* [ ] Un ou plusieurs conteneurs partageant le même réseau et stockage
+* [x] Un ou plusieurs conteneurs partageant le même réseau et stockage
 
 ---
 
@@ -15,7 +15,7 @@
 
 **Quelle commande permet de lister tous les pods dans un namespace spécifique ?**
 
-* [ ] `kubectl get pods -n <namespace>`
+* [x] `kubectl get pods -n <namespace>`
 * [ ] `kubectl list pods`
 * [ ] `kubectl pods get --namespace <namespace>`
 * [ ] `kubectl get all -n pods`
@@ -26,7 +26,7 @@
 
 **Quels objets Kubernetes sont utilisés pour exposer un Pod en externe ?**
 
-* [ ] Service
+* [x] Service
 * [ ] Volume
 * [ ] Pod
 * [ ] ConfigMap
@@ -41,9 +41,9 @@
 kubectl apply -f deployment.yaml
 ```
 
-* [ ] Applique une configuration définie dans un fichier YAML
+* [x] Applique une configuration définie dans un fichier YAML
 * [ ] Supprime les ressources définies dans le fichier
-* [ ] Crée ou met à jour les ressources Kubernetes
+* [x] Crée ou met à jour les ressources Kubernetes
 * [ ] Exécute un Pod temporaire
 
 ---
@@ -54,7 +54,7 @@ kubectl apply -f deployment.yaml
 
 * [ ] `kubectl logs pod-name`
 * [ ] `kubectl describe node pod-name`
-* [ ] `kubectl describe pod pod-name`
+* [x] `kubectl describe pod pod-name`
 * [ ] `kubectl show pod pod-name`
 
 ---
@@ -63,9 +63,9 @@ kubectl apply -f deployment.yaml
 
 **Quels types de Services Kubernetes existent ?**
 
-* [ ] ClusterIP
-* [ ] NodePort
-* [ ] LoadBalancer
+* [x] ClusterIP
+* [x] NodePort
+* [x] LoadBalancer
 * [ ] ExternalNamePort
 
 ---
@@ -74,7 +74,7 @@ kubectl apply -f deployment.yaml
 
 **Quel fichier contient généralement la définition d’un déploiement dans Kubernetes ?**
 
-* [ ] deployment.yaml
+* [x] deployment.yaml
 * [ ] config.txt
 * [ ] service.json
 * [ ] deploy.yml
@@ -85,10 +85,10 @@ kubectl apply -f deployment.yaml
 
 **Quelles sont les responsabilités du `kubelet` ?**
 
-* [ ] Superviser les Pods sur un nœud
+* [x] Superviser les Pods sur un nœud
 * [ ] Gérer le réseau du cluster
 * [ ] Compiler les fichiers YAML
-* [ ] Communiquer avec l’API Server
+* [x] Communiquer avec l’API Server
 
 ---
 
@@ -96,7 +96,7 @@ kubectl apply -f deployment.yaml
 
 **Que retourne la commande `kubectl get nodes` ?**
 
-* [ ] La liste des nœuds du cluster
+* [x] La liste des nœuds du cluster
 * [ ] La liste des Pods sur chaque nœud
 * [ ] L’état des conteneurs
 * [ ] Les métriques de CPU et mémoire
@@ -107,7 +107,10 @@ kubectl apply -f deployment.yaml
 
 **Comment supprimer un Pod nommé `test-pod` ?**
 
-* [ ] `kubectl delete pod test-pod`
+* [x] `kubectl delete pod test-pod`
 * [ ] `kubectl remove pod test-pod`
 * [ ] `kubectl destroy pod test-pod`
 * [ ] `kubectl pod delete test-pod`
+
+
+
