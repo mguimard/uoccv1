@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    name: frontend
+  name: frontend
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    name: backend
+  name: backend
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend
+  namespace: backend
+  labels:
+    app: backend
+spec:
+  containers:
+  - name: web
+    image: nginx
+    ports:
+    - containerPort: 80
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend
+  namespace: frontend
+  labels:
+    app: frontend
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+    command: ["sleep", "3600"]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: backend
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: backend
+  type: ClusterIP
+---
+# deny all outgoing trafic from backend pods
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-ingress
+  namespace: backend
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+  - Ingress
+---
+# allow incoming traffic from frontend pods to backend pods with app=backend label
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend
+  namespace: backend
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: frontend
+      podSelector:
+        matchLabels:
+          app: frontend
+---
+# allow outgoing traffic from frontend pods with app=frontend label to backend pods and kube DNS
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-backend
+  namespace: frontend
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: backend
+      podSelector:
+        matchLabels:
+          app: backend
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: TCP
+      port: 80
+    - protocol: UDP
+      port: 53
+
