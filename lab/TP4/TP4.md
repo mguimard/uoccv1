@@ -1,10 +1,11 @@
-# 🛠️ Exercice : Tolérance à la panne dans un cluster Kubernetes
 
-## 🎯 Objectif
+# TP4 : Tolérance à la panne dans un cluster Kubernetes
+
+## Objectif
 
 Comprendre et tester le comportement de Kubernetes en cas de panne d’un nœud (`worker2`) en utilisant les objets **ReplicaSet** et **DaemonSet**.
 
-## 🧱 Contexte
+## Contexte
 
 Vous disposez d’un cluster Kubernetes composé de 3 nœuds :
 
@@ -21,17 +22,17 @@ Vous allez :
 
 ---
 
-## 🧪 Étapes de l'exercice
+## Étapes de l'exercice
 
-### 1️⃣ Créer un ReplicaSet
+### Créer un ReplicaSet
 
-Créez un fichier `replicaset.yaml` :
+Créez un fichier `deployment.yaml` :
 
 ```yaml
 apiVersion: apps/v1
-kind: ReplicaSet
+kind: Deploment
 metadata:
-  name: nginx-replicaset
+  name: nginx-deployment
 spec:
   replicas: 4
   selector:
@@ -52,10 +53,10 @@ spec:
 Appliquez le manifeste :
 
 ```bash
-kubectl apply -f replicaset.yaml
+kubectl apply -f deployment.yaml
 ```
 
-### 2️⃣ Créer un DaemonSet
+### Créer un DaemonSet
 
 Créez un fichier `daemonset.yaml` :
 
@@ -96,7 +97,25 @@ Vous devriez avoir un pod sur chaque nœud (`master`, `worker1`, `worker2`).
 
 ---
 
-## 🔥 3️⃣ Simuler une panne du nœud `worker2`
+## Simuler une panne d'un pod
+
+Lister les pods et récupérer le nom d'un des pods nginx
+
+```bash
+kubectl get pods -o wide
+```
+
+Tuer un pod
+
+```bash
+kubectl delete pods <podname>
+```
+
+Vérifier que les 4 réplicas sont toujours disponibles.
+
+---
+
+## Simuler une panne du nœud `worker2`
 
 Simulez une panne en arrêtant le service kubelet ou éteignez le nœud dans votre environnement :
 
@@ -119,9 +138,9 @@ Attendez quelques minutes (le délai de détection dépend du paramétrage de l�
 
 ---
 
-## 📊 4️⃣ Observer le comportement du cluster
+##  Observer le comportement du cluster
 
-### 📌 Questions à répondre :
+### Questions :
 
 1. Que devient le pod du DaemonSet prévu sur `worker2` ?
 2. Que deviennent les pods du ReplicaSet initialement programmés sur `worker2` ?
@@ -129,7 +148,16 @@ Attendez quelques minutes (le délai de détection dépend du paramétrage de l�
 4. Combien de pods du ReplicaSet sont en état `Running` après la panne ?
 5. Que se passe-t-il si vous relancez `worker2` ?
 
-### 🔍 Commandes utiles :
+
+Si les pods ne sont que sur le worker1, il est possible de rebalancer la charge
+
+```bash
+kubectl rollout restart deployment nginx-deployment 
+```
+
+Vérifier que le worker2 a bien récupérer des pods.
+
+### Commandes utiles :
 
 ```bash
 kubectl get nodes
