@@ -54,7 +54,7 @@ spec:
     app: backend
   type: ClusterIP
 ---
-# deny all outgoing trafic from backend pods
+# deny all incommint trafic to backend pods
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
